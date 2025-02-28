@@ -1,7 +1,3 @@
-# AWS Amplify build configuration for Fairwinds RV App
-# This file configures how AWS Amplify builds and deploys the application
-# Note: Update the environment variables in the AWS Amplify Console with actual values
-
 version: 1
 frontend:
   phases:
@@ -10,22 +6,7 @@ frontend:
         - echo "Current directory structure:"
         - ls -la
         - echo "Navigating to app directory..."
-        - if [ -d "app" ]; then
-        -   echo "Found app directory at current location"
-        -   cd app
-        - elif [ -d "../app" ]; then
-        -   echo "Found app directory one level up"
-        -   cd ../app
-        - elif [ -d "fairwinds-v5/app" ]; then
-        -   echo "Found app directory in fairwinds-v5 subdirectory"
-        -   cd fairwinds-v5/app
-        - else
-        -   echo "App directory not found, checking repository structure"
-        -   find . -type d -name "app" | sort
-        -   echo "Repository root contents:"
-        -   ls -la
-        -   exit 1
-        - fi
+        - cd app
         - npm ci
         - npm install aws-amplify @aws-amplify/ui-react
     build:
@@ -34,15 +15,13 @@ frontend:
         - echo "Current directory: $(pwd)"
         - npm run build
   artifacts:
-    # The baseDirectory is relative to the build output directory
-    # We'll use a variable to determine the correct path based on where we found the app directory
-    baseDirectory: .next
+    baseDirectory: app/.next
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
-      - .next/cache/**/*
+      - app/node_modules/**/*
+      - app/.next/cache/**/*
   customHeaders:
     - pattern: '**/*'
       headers:
@@ -55,12 +34,8 @@ frontend:
         - key: 'Content-Security-Policy'
           value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' *.amazonaws.com *.amazoncognito.com"
   environmentVariables:
-    # AWS Amplify Authentication Configuration
-    # Replace these placeholder values with actual values in the AWS Amplify Console
     NEXT_PUBLIC_AWS_REGION: 'us-east-1'
     NEXT_PUBLIC_USER_POOL_ID: 'us-east-1_example'
     NEXT_PUBLIC_USER_POOL_WEB_CLIENT_ID: 'example'
-    
-    # Application Configuration
     NEXT_PUBLIC_APP_VERSION: '0.1.0'
     NEXT_PUBLIC_MAX_PHOTOS: '12'
