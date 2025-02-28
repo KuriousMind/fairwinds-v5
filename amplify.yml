@@ -7,21 +7,42 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd app
+        - echo "Current directory structure:"
+        - ls -la
+        - echo "Navigating to app directory..."
+        - if [ -d "app" ]; then
+        -   echo "Found app directory at current location"
+        -   cd app
+        - elif [ -d "../app" ]; then
+        -   echo "Found app directory one level up"
+        -   cd ../app
+        - elif [ -d "fairwinds-v5/app" ]; then
+        -   echo "Found app directory in fairwinds-v5 subdirectory"
+        -   cd fairwinds-v5/app
+        - else
+        -   echo "App directory not found, checking repository structure"
+        -   find . -type d -name "app" | sort
+        -   echo "Repository root contents:"
+        -   ls -la
+        -   exit 1
+        - fi
         - npm ci
         - npm install aws-amplify @aws-amplify/ui-react
     build:
       commands:
         - echo "Building Fairwinds RV App..."
+        - echo "Current directory: $(pwd)"
         - npm run build
   artifacts:
-    baseDirectory: app/.next
+    # The baseDirectory is relative to the build output directory
+    # We'll use a variable to determine the correct path based on where we found the app directory
+    baseDirectory: .next
     files:
       - '**/*'
   cache:
     paths:
-      - app/node_modules/**/*
-      - app/.next/cache/**/*
+      - node_modules/**/*
+      - .next/cache/**/*
   customHeaders:
     - pattern: '**/*'
       headers:
