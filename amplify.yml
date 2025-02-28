@@ -1,0 +1,45 @@
+# AWS Amplify build configuration for Fairwinds RV App
+# This file configures how AWS Amplify builds and deploys the application
+# Note: Update the environment variables in the AWS Amplify Console with actual values
+
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd app
+        - npm ci
+        - npm install aws-amplify @aws-amplify/ui-react
+    build:
+      commands:
+        - echo "Building Fairwinds RV App..."
+        - npm run build
+  artifacts:
+    baseDirectory: app/.next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - app/node_modules/**/*
+      - app/.next/cache/**/*
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'Strict-Transport-Security'
+          value: 'max-age=31536000; includeSubDomains'
+        - key: 'X-Content-Type-Options'
+          value: 'nosniff'
+        - key: 'X-XSS-Protection'
+          value: '1; mode=block'
+        - key: 'Content-Security-Policy'
+          value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' *.amazonaws.com *.amazoncognito.com"
+  environmentVariables:
+    # AWS Amplify Authentication Configuration
+    # Replace these placeholder values with actual values in the AWS Amplify Console
+    NEXT_PUBLIC_AWS_REGION: 'us-east-1'
+    NEXT_PUBLIC_USER_POOL_ID: 'us-east-1_example'
+    NEXT_PUBLIC_USER_POOL_WEB_CLIENT_ID: 'example'
+    
+    # Application Configuration
+    NEXT_PUBLIC_APP_VERSION: '0.1.0'
+    NEXT_PUBLIC_MAX_PHOTOS: '12'
